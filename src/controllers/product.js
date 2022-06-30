@@ -1,4 +1,5 @@
 const { product, user } = require('../../models');
+const cloudinary = require('../utils/cloudinary');
 
 exports.getProducts = async (req, res) => {
   try {
@@ -119,15 +120,22 @@ exports.getProduct = async (req, res) => {
 
 exports.addProduct = async (req, res) => {
   try {
+    const cloudinary = require('../utils/cloudinary');
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'Upload',
+      use_filename: true,
+      unique_filename: false,
+    });
     const data = {
       name: req.body.name,
       desc: req.body.desc,
       price: req.body.price,
-      image: req.file.filename,
+      image: result.public_id,
       stock: req.body.stock,
       idUser: req.user.id,
     };
 
+    
     let newProduct = await product.create(data);
 
     let productData = await product.findOne({
